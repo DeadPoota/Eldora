@@ -627,6 +627,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  alert("JS carregou");
+  window.addEventListener("error", (e) => {
+  alert("ERRO JS:\n" + (e.message || e.error || "desconhecido"));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  alert("PROMISE REJEITADA:\n" + (e.reason?.message || e.reason || "desconhecido"));
+});
 /* =========================================
    Eldora — Realtime com Supabase (v2)
    - Conexão opcional (offline/localStorage se não conectar)
