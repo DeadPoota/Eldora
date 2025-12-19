@@ -625,8 +625,25 @@
 </main>
 
 <div class="toast" id="toast"></div>
-
+<div id="debugBox" style="position:fixed;top:10px;left:10px;z-index:99999;background:#000c;color:#fff;padding:8px 10px;border-radius:10px;font:12px monospace;max-width:90vw">
+  debug: (carregando...)
+</div>
 <script>
+  const dbg = (msg) => {
+  const el = document.getElementById("debugBox");
+  if(el) el.textContent = "debug: " + msg;
+};
+
+dbg("JS OK ✅ (" + new Date().toLocaleTimeString() + ")");
+
+// captura qualquer clique/toque na página inteira
+document.addEventListener("click", (e) => {
+  dbg("click em #" + (e.target?.id || "(sem id)") + " ." + (e.target?.className || ""));
+}, true);
+
+// captura erros também no debugBox
+window.addEventListener("error", (e) => dbg("ERRO: " + (e.message || e.error || "desconhecido")));
+window.addEventListener("unhandledrejection", (e) => dbg("PROMISE: " + (e.reason?.message || e.reason || "desconhecido")));
   alert("JS carregou");
   window.addEventListener("error", (e) => {
   alert("ERRO JS:\n" + (e.message || e.error || "desconhecido"));
