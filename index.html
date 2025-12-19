@@ -281,6 +281,7 @@
           <div class="row" style="align-items:center;">
             <button class="btn primary" id="btnConnect">Conectar</button>
             <button class="btn" id="btnDisconnect">Desconectar</button>
+            <button class="btn warn" id="btnTest">Testar</button>
             <span class="spacer"></span>
             <span class="pill mono" id="roomStatus">local</span>
           </div>
@@ -648,6 +649,36 @@ const toInt = (v, fallback=0) => {
   const n = parseInt(String(v).trim(), 10);
   return Number.isFinite(n) ? n : fallback;
 };
+document.getElementById("btnTest").addEventListener("click", async () => {
+  try{
+    if(!canUseSupabase()){
+      alert("Você não colou SUPABASE_URL e SUPABASE_ANON_KEY corretamente no HTML.");
+      return;
+    }
+    if(!supabase){
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    const code = (document.getElementById("roomCode").value || "ELDORA1").trim();
+
+    // 1) tenta UPSERT (criar/atualizar)
+    const up = await supabase.from("rooms").upsert({
+      code,
+      state: { ping: Date.now() },
+      updated_at: new Date().toISOString()
+    }, { onConflict: "code" });
+
+    if(up.error) throw up.error;
+
+    // 2) tenta LER
+    const rd = await supabase.from("rooms").select("state").eq("code", code).single();
+    if(rd.error) throw rd.error;
+
+    alert("✅ OK! Conectou, escreveu e leu.\nstate=" + JSON.stringify(rd.data.state));
+  }catch(e){
+    alert("❌ Erro:\n" + (e?.message || JSON.stringify(e)));
+  }
+});
 function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 function escapeHtml(s){
   return String(s ?? "")
